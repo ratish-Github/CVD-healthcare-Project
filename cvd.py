@@ -1,92 +1,55 @@
-#!/usr/bin/env python
-# coding: utf-8
+# Problem statement:
+# Cardiovascular diseases are the leading cause of death globally. It is therefore necessary to identify the causes and develop a system to predict heart 
+attacks in an effective manner. The data below has the information about the factors that might have an impact on cardiovascular health.
+Dataset description:
+Variable - Description Age - Age in years Sex - 1 = male; 0 = female cp - Chest pain type trestbps - Resting blood pressure (in mm Hg on admission to the hospital) 
+chol - Serum cholesterol in mg/dl fbs - Fasting blood sugar > 120 mg/dl (1 = true; 0 = false) restecg - Resting electrocardiographic results thalach - 
+Maximum heart rate achieved exang - Exercise induced angina (1 = yes; 0 = no) oldpeak - ST depression induced by exercise relative to rest slope - 
+Slope of the peak exercise ST segment ca - Number of major vessels (0-3) colored by fluoroscopy thal - 3 = normal; 6 = fixed defect; 7 = reversible defect
+Target - 1 or 0
 
-# In[22]:
-
-
+#import the libraries required 
 import pandas as pd
 import numpy as np
 
-
-# In[65]:
-
-
+#import the data by importing them
 data=pd.read_excel('cep_dataset.xlsx')
 
-
-# In[66]:
-
-
+#Frist five row of data
 data.head()
 
-
-# In[67]:
-
-
+#Shape of the dataset
 data.shape
 
-
-# In[68]:
-
-
+#type of dataset variable
 data.info()
 
-
-# In[69]:
-
-
+# Null value presence
 data.isnull().sum(axis=0)
-
-
-# In[70]:
-
 
 data.isnull().sum(axis=1)
 
-
-# In[73]:
-
-
+#checking whether categorical or numerical target
 data['target'].value_counts()
 
-
-# In[74]:
-
-
+#Description of the dataset
 data.describe()
 
-
-# In[77]:
-
-
+# datatypes variable
 data.dtypes
 
-
-# In[78]:
-
-
+# here we will import library
 import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 import seaborn as sns
 
-
-# In[83]:
-
-
 sns.countplot(x ='sex', data = data,hue='sex')
 plt.show()
-
-
-# In[82]:
-
 
 sns.countplot(x='target',data=data,hue='target')
 plt.show()
 
-
-# In[86]:
-
-
+# finding the categorical variable presence
 categorical_val = []
 continous_val = []
 for column in data.columns:
@@ -97,32 +60,21 @@ for column in data.columns:
     else:
         continous_val.append(column)
 
-
-# In[87]:
-
-
+# import libarary        
 import hvplot.pandas
 
-
-# In[90]:
-
-
+#relation of target with gender
 data.target.value_counts().hvplot.bar(
     title="Heart Disease Count", xlabel='Heart Disease', ylabel='Count', 
     width=250, height=400
 )
 
 
-# In[91]:
-
-
 sns.countplot(x ='sex', data = data,hue='target')
 plt.show()
 
 
-# In[102]:
-
-
+#Plot between sex and target
 have_disease = data.loc[data['target']==1, 'sex'].value_counts().hvplot.bar(alpha=0.4) 
 no_disease = data.loc[data['target']==0, 'sex'].value_counts().hvplot.bar(alpha=0.4) 
 
@@ -131,148 +83,70 @@ no_disease = data.loc[data['target']==0, 'sex'].value_counts().hvplot.bar(alpha=
     width=500, height=450, legend_cols=2, legend_position='top_right'
 )
 
-
-# In[103]:
-
-
+#how many have diabetics
 have_disease = data.loc[data['target']==1, 'sex'].value_counts()
-
-
-# In[104]:
-
-
 have_disease 
 
-
-# In[105]:
-
-
+#how many have no disease
 no_disease = data.loc[data['target']==0, 'sex'].value_counts()
 no_disease
 
-
-# In[108]:
-
-
+# have disease with age
 have_disease_1 = data.loc[data['target']==1, 'age'].value_counts()
 have_disease_1
 
-
-# In[109]:
-
-
+# have disease with trestbps
 have_disease_2 = data.loc[data['target']==1, 'trestbps'].value_counts()
 have_disease_2
 
-
-# In[110]:
-
-
+#have disease  with chol
 have_disease_3 = data.loc[data['target']==1, 'chol'].value_counts()
 have_disease_3
 
-
-# In[111]:
-
-
+# create heatmap for proper relation
 plt.figure(figsize=(15,10))
 sns.heatmap(data.corr(), annot=True,fmt='.0%')
 
-
-# In[112]:
-
-
+#pair plot 
 plt.figure(figsize=(15,10))
 sns.pairplot(data.select_dtypes(exclude='object'))
 plt.show()
 
-
-# In[209]:
-
-
+#drop the variable
 x=data.drop(columns=['target','age','sex','chol','restecg','exang','oldpeak','trestbps'],axis=1)
 print(x)
 
-
-# In[210]:
-
-
+#separating the target variable
 Y=data['target']
 print(Y)
 
-
-# In[211]:
-
-
+#plot with x and Y
 x.corrwith(Y).plot.bar(
     figsize=(16,4),title='Correlation with CVD',fontsize=15,
     rot=90,grid=True)
 
-
-# In[236]:
-
-
+# import the library
 from scipy import stats
 from sklearn.model_selection import train_test_split
-
-
-# In[240]:
-
-
 X_train, X_test, y_train, y_test = train_test_split(x,Y, test_size=0.3, random_state=42)
-
-
-# In[241]:
-
-
 x_train.shape
 
-
-# In[242]:
-
-
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-
-
-# In[243]:
-
-
 from sklearn.linear_model import LogisticRegression
-
-
-# In[244]:
-
 
 print("Before OverSampling, counts of label '1': {}".format(sum(y_train == 1)))
 print("Before OverSampling, counts of label '0': {} \n".format(sum(y_train == 0)))
   
-
-
-# In[245]:
-
-
 from imblearn.under_sampling import NearMiss
 sm = NearMiss() 
 
-
-# In[246]:
-
-
 X_train_res, y_train_res = sm.fit_resample(X_train, y_train)
-
-
-# In[252]:
-
 
 print('After OverSampling, the shape of train_X: {}'.format(X_train_res.shape))
 print('After OverSampling, the shape of train_y: {} \n'.format(y_train_res.shape))
   
 print("After OverSampling, counts of label '1': {}".format(sum(y_train_res == 1)))
 print("After OverSampling, counts of label '0': {}".format(sum(y_train_res == 0)))
-
-
-# In[253]:
-
 
 lr1 = LogisticRegression()
 lr1.fit(X_train_res, y_train_res)
@@ -281,49 +155,22 @@ predictions = lr1.predict(X_test)
 # print classification report
 print(classification_report(y_test, predictions))
 
-
-# In[254]:
-
-
 from sklearn.ensemble import RandomForestClassifier
 rfc = RandomForestClassifier(n_estimators=150)
 rfc.fit(X_train_res,y_train_res)
-
-
-# In[255]:
-
-
 predictions1 = rfc.predict(X_test)
-
-
-# In[256]:
-
 
 print(classification_report(y_test,predictions1))
 
-
-# In[257]:
-
-
 rfc.score(X_test, y_test)
 
-
-# In[258]:
-
-
 print(classification_report(y_train, rfc.predict(X_train)))
-
-
-# In[259]:
-
 
 import statsmodels.api as sm
 logit_model=sm.Logit(Y,x)
 result=logit_model.fit()
 print(result.summary())
 
-
-# In[ ]:
 
 
 
